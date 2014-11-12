@@ -6,11 +6,11 @@ module.exports = function(grunt) {
 		concat: {
             dist: {
                 src: [
-                    "src/begin.js",
-                    "src/modules/annotation.js",
-                    "src/modules/table.js",
-                    "src/modules/chart.js",
-                    "src/end.js"
+                    "src/metvis/begin.js",
+                    "src/metvis/modules/annotation.js",
+                    "src/metvis/modules/table.js",
+                    "src/metvis/modules/chart.js",
+                    "src/metvis/end.js"
                 ],
                 dest: 'build/<%= pkg.name %>.<%= pkg.version %>.js'
             }
