@@ -25,9 +25,11 @@ var metvis = {
 				return;
 			}
 
+			// Now draw
 			$(self.container).append("<table></table>")
 			var table = $(self.container).children();
 
+			// Probably really inefficient...
 			var hdr = "<thead>"
 			$.each(self.vis.datatable[0], function(key, val) {
 				hdr = hdr + "<th>" + key + "</th>";
