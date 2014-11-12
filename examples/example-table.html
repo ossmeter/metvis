@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>MetVis Example: Table</title>
+	<script src="../build/metvis.0.1.0.js"></script>
+	<script src="../lib/jquery-1.9.1.js"></script>
+	<script src="../lib/d3.v3.min.js"></script>
+</head>
+<body>
+
+<div id="table"></div>
+
+<script type="text/javascript">
+	$(function() {
+		var vis = {
+			"name" : "sentiment",
+			"type" : "Table",
+			datatable: [
+				{"Count" : 23, "Sentiment" : "Joy"},
+				{"Count" : 4, "Sentiment" : "Desire"},
+				{"Count" : 22, "Sentiment" : "Fear"},
+				{"Count" : 12, "Sentiment" : "Anger"}, 
+			]
+		}
+
+		var table = metvis.Table("#table", vis);
+		table.draw();
+	});
+</script>
+
+</body>
+</html>
