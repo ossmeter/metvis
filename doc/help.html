@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>OSSMETER Visualisation Playpen</title>
+		
+		<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+        <link href="stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+        <link href="stylesheets/main.css" type="text/css" rel="stylesheet"/>
+
+</head>
+<body class="container-fluid">
+	<div class="row">
+		<div class="col-md-8 col-md-offset-2">
+			<h2>MetVis Help</h2>
+			<div class="row bs-callout bs-callout-info">
+				<h3>Overview</h3>
+				<p>This page will give you a quick overview of the language used to define metric visualisations. Please contact James if you have any questions, issues, or feature requests.</p>
+				<p><span class="badge">Warning</span> The language is currently under development and may evolve as feedback is received.</p>
+			</div>
+			<div class="row bs-callout bs-callout-info">
+				<h3>The MetVis Language</h3>
+				<p>Metric visualisations are defined using JSON. The JSON specification must adhere to the following specification:</p>
+				<pre>SPEC ::= { "metricid" : "&lt;ID&gt;", "vis" : [ VIS* ] }</pre>
+				<p>where:</p>
+				<pre>VIS ::= { "name" : "&lt;ID&gt;", "type" : &lt;VISTYPE&gt; }
+VISTYPE ::= "LineChart" | "BarChart"</pre>
+				<p>The most basic (and useless) metric visualisation definition, therefore, is:</p>
+<pre>{
+	"metricid" : "my.lovely.metric",
+	"vis" : [ ]
+}</pre>
+				<p>The <code>vis</code> is a list, meaning that each metric provider can have multiple visualisations.</p> 
+			</div>
+			<div class="row bs-callout bs-callout-info">
+				<h3>Example: Requests and Replies</h3>
+				<p>To illustrate MetVis, we use the communication channel's historic requests-replies metric provider. Its Pongo data model looks as follows:</p>
+<pre>class RequestsReplies {
+	attr int numberOfRequests;
+	attr int numberOfReplies;
+}</pre>
+				<p>Essentially, for each day of a project's lifespan, it will store the total number of requests and replies in the forum/mailing list etc.</p>
+				<p>We will now define three different visualisations for this model, and describe how the language is used to relate the data model's contents to the visualisation specification.</p>
+
+				<h4>Visualisation #1: Number of Requests</h4>
+				<p>So we want to make a simple line plot that shows how the number of requests made in the comm channels has grown over time. The MetVis JSON looks like this:</p>
+<pre>{
+	"name" : "numberofrequests",
+	"type" : "LineChart",
+	"datatable" : {
+		"cols" : [  
+			{ "name" : "Date", "field" : "$__date" }, 
+			{ "name" : "Requests", "field" : "$numberOfRequests" } 
+		]
+	},
+	"x" : "Date",
+	"y" : "Requests",
+	"timeSeries" : true
+}</pre>				
+				<p>Hopefully the above is fairly clear. A visualisation has a <code>name</code> - a unique reference for that visualisation; a <code>type</code> - the type of plot that use for the visualisation (currently supports: <code>LineChart</code>, <code>BarChart</code>); a <code>datatable</code> - a description of the <em>structure</em> of the data table which defines the columns and how each column relates to a field in the Pongo data model; a <code>x</code> - the name of one of the columns that represents the X axis; a <code>y</code> - the name of one of the columns that represents the Y axis; a (optional) <code>timeSeries</code> flag - that states whether the X axis should be interpreted as time series data.</p>
+
+				<p>When defining the columns for the data table, Pongo field names are prefixed with dollar signs. To access the date field for historic metrics, use <code>$__date</code>. </p> 
+
+
+				<h4>Visualisation #2: Number of Replies</h4>
+				<p>This visualisation is very similar to the previous. The MetVis JSON looks as follows:</p>
+<pre>{
+	"name" : "numberofreplies",
+	"type" : "LineChart",
+	"datatable" : {
+		"cols" : [  
+			{ "name" : "Date", "field" : "$__date" }, 
+			{ "name" : "Requests", "field" : "$numberOfReplies" } 
+		]
+	},
+	"x" : "Date",
+	"y" : "Replies",
+	"timeSeries" : true
+}</pre>	
+				<p>The rest is as above.</p>
+
+				<h4>Visualisation #3: Number of Requests and Replies</h4>
+				<p>What if we want to show both the requests and the replies on the same plot? We do this by adding more columns in the datatable and defining the <code>y</code> field to be an array of column names:</p>
+<pre>{
+	"name" : "avgnumberofarticlesrequestsreplies",
+	"type" : "LineChart",
+	"datatable" : {
+		"cols" : [  { "name" : "Date", "field" : "$__date" },
+			{ "name" : "Requests", "field" : "$numberOfRequests" },
+			{ "name" : "Replies", "field" : "$numberOfReplies" } ]
+	},
+	"x" : "Date",
+	"y" : ["Requests", "Replies"],
+	"timeSeries" : true
+}</pre>
+				<p>Easy! ;)</p>
+
+			</div>
+			<div class="row bs-callout bs-callout-info">
+				<h3>Example: Commits over Time</h3>
+				<p>In the previous example, we only used the <code>cols</code> field to define our data table and used the <code>y</code> field to define series. This example shows how to use the <code>rows</code> field to specify series instead. <strong>The choice of approach depends entirely on the data model of the metric provider</strong>. </p>
+
+				<p>The data model for our metric that tracks the number of commits over time is as follows:</p>
+
+<pre>class CommitsOverTime {
+	val Repository[*] repositories;
+}
+
+class Repository {
+	attr String url;
+	attr int numberOfCommits;
+}
+
+</pre>				
+				<p>This data model assumes that a single project can have multiple source code repositories, and it tracks their commits separately. Repositories are identified by a <code>url</code> field. The structure of this data model means that we can't use the previously shown approach to specifying series: series here aren't individual fields, they are entries in the <code>repositories</code> collection.</p>
+
+				<p>We define our visualisation as follows:</p>
+<pre>{
+	"name" : "commitsovertimeline",
+	"type" : "LineChart",
+	"datatable" : {
+		"rows" : "$repositories",
+		"cols" : [  { "name" : "Date", "field" : "$__date" }, 
+			{ "name" : "Commits", "field" : "$numberOfCommits" },
+			{ "name" : "Repository", "field" : "$url" } ]
+	},
+	"x" : "Date",
+	"y" : "Commits", 
+	"series" : "Repository",
+	"x-label" : "Date",		
+	"y-label" : "Number of Commits"	,
+	"timeSeries" : true
+}</pre>
+				<p>In the datatable we specify the <code>cols</code> field as you might expect, but we also include a <code>rows</code> field that tells MetVis how to split the data into rows: in this case, each row is a different repository. An example of the datatable that would be produced (in JSON format) is:</p>
+
+<pre>[
+	{"Date":"20120202","Commits":408,"Repository":"myrepo1"},
+	{"Date":"20120202","Commits":65,"Repository":"myrepo2"},
+	{"Date":"20120203","Commits":410,"Repository":"myrepo1"},
+	{"Date":"20120203","Commits":83,"Repository":"myrepo2"}
+	{"Date":"20120204","Commits":418,"Repository":"myrepo1"},
+	{"Date":"20120204","Commits":98,"Repository":"myrepo2"}
+]</pre>
+
+				<p>We then need to tell MetVis that, when drawing the datatable, the <code>Repository</code> field identifies different <code>series</code> with a common <code>y</code> axis. The <code>x-label</code> and <code>y-label</code> fields allow you to specify labels for the axes (the default is the name of the column in the data model). </p>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

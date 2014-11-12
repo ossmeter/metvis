@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>OSSMETER Visualisation Playpen</title>
+		
+		<link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+        <link href="stylesheets/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+        <link href="stylesheets/main.css" type="text/css" rel="stylesheet"/>
+        <link href="stylesheets/bootstrap-tour.css" rel="stylesheet">
+        <link href="../build/metvis.0.1.0.min.css" rel="stylesheet">
+
+        <script src="../lib/jquery-1.9.1.js"></script>
+        <script src="../lib/d3.v3.min.js"></script>
+        <script src="javascripts/bootstrap.min.js"></script>
+        <script src="javascripts/bootstrap-tour.js"></script>
+
+    <script>
+        //http://stackoverflow.com/questions/6637341/use-tab-to-indent-in-textarea
+        $(document).delegate('#editor', 'keydown', function(e) {
+		  var keyCode = e.keyCode || e.which;
+
+		  if (keyCode == 9) {
+		    e.preventDefault();
+		    var start = $(this).get(0).selectionStart;
+		    var end = $(this).get(0).selectionEnd;
+
+		    // set textarea value to: text before caret + tab + text after caret
+		    $(this).val($(this).val().substring(0, start)
+		                + "\t"
+		                + $(this).val().substring(end));
+
+		    // put caret at right position again
+		    $(this).get(0).selectionStart =
+		    $(this).get(0).selectionEnd = start + 1;
+		  }
+		});
+		$(function() {
+			
+			$("#commits_btn").click(function() {
+
+				$("#editor").load("dat/commits.json", function() {
+					$("#commits_btn").addClass("active");
+					$("#nntp_btn").removeClass("active");
+				});
+			});
+
+			$("#nntp_btn").click(function() {
+				$("#editor").load("dat/nntp.json", function() {
+					$("#nntp_btn").addClass("active");
+					$("#commits_btn").removeClass("active");
+				});
+			});
+
+			$("#categorical_btn").click(function() {
+				$("#editor").load("dat/categorical.json", function() {
+					$("#categorical_btn").addClass("active");
+					$("#commits_btn").removeClass("active");
+					$("#nntp_btn").removeClass("active");
+				});
+			});
+
+			$("#nntp_btn").click();
+
+			$("#visualise_url_btn").click(function() {
+				var url = $("#visUrl").val();
+				console.log("clicked");
+				$.get(url, function(vis) {		
+					var container = vis.id;
+					$("#plotarea").append('<div class="row bs-callout bs-callout-info"><h4>'+vis.id+'</h4><div id="'+container+'"></div>');
+					var chart = new metvis.Chart("#" + container, JSON.parse(vis));
+					chart.draw();
+				});
+			});
+
+			$("#visualise_btn").click(function() {
+				$("#msgs").html(""); // clear
+				$("#tdata").html(""); // clear
+				$("#plotarea").html(""); // clear
+
+				var obj;
+				try {
+					var json = $("#editor").val();
+					obj = JSON.parse(json);
+					$("#msgs").append("<li><span class=\"label label-success\">Specification parsed ok.</span></li>");
+				} catch (e) {
+					$("#msgs").html("<li><span class=\"label label-danger\">Error parsing specification:</span></li>");
+					$("#msgs").append(e);
+				}
+
+				$("#tdata").append('<div class="panel-group" id="accordion">');
+				for (vis in obj.vis) {
+					var tstData;
+					try {
+						var numEntries = $("input[name=inlineRadioOptions]:checked", "#visform").val();
+
+						tstData = generateTestData(obj.vis[vis], numEntries);
+						$("#msgs").append("<p>" + obj.vis[vis].id + "</p>");
+						$("#msgs").append("<li><span class=\"label label-success\">Test data generated.</span></li>");
+					} catch (e) {
+						$("#msgs").html("<li><span class=\"label label-danger\">Error generating test data:</span></li>");
+						$("#msgs").append(e);
+						throw e;
+						continue;
+					}
+					$("#tdata").append('<div class="panel panel-default">'+
+					    '<div class="panel-heading">'+
+					    '  <h4 class="panel-title">'+
+					    '    <a data-toggle="collapse" data-parent="#accordion" href="#collapse-' + obj.vis[vis].id + '">'+
+					           obj.vis[vis].id + 
+					    '    </a>'+
+					    '  </h4>'+
+					    '</div>'+
+					    '<div id="collapse-' + obj.vis[vis].id + '" class="panel-collapse collapse">'+
+      					'	<div class="panel-body">' + JSON.stringify(tstData) + 
+      					'	</div>'+
+					    '</div>'+
+					  '</div>'
+					  );
+
+					// try {
+						visualise(obj.vis[vis], tstData);
+						$("#msgs").append("<li><span class=\"label label-success\">Metrics visualised.</span></li>");
+					// } catch (e) {
+					// 	$("#msgs").append("<li><span class=\"label label-danger\">Metrics visualisation failed.</span></li>");
+					// 	$("#msgs").append(e);
+					// 	console.err(e)
+					// }
+					
+				}
+				$("#tdata").append('</div>');
+			});
+
+			$("#tour_btn").click(function() {
+				showTour();
+			});
+		});
+
+		function showTour() {
+		// Instance the tour
+			var tour = new Tour({
+	          storage: false,
+			  steps: [
+			  {
+			    element: "#tour_btn",
+			    title: "Visualisation Description Tour!",
+			    content: "Hello Ossmeterer! This web page will help you to define the visualisations for your metric providers. This tour will hopefully get you started. Feel free to contact me if you have any questions :)",
+                backdrop: true
+			  },{
+			    element: "#editor",
+			    title: "Visualisation Description Editor",
+			    content: "Define your metric visualisations here.",
+                backdrop: true
+			  },
+			  {
+			    element: "#visform",
+			    title: "Generate Test Data",
+			    content: "Select the number of data points to appear in the generated test data.",
+                backdrop: true
+			  },
+			  {
+			    element: "#visualise_btn",
+			    title: "Visualise!",
+			    content: "Click the button to generate test data and see how your metric visualisations will look.",
+                backdrop: true
+			  },
+			  {
+			    element: "#msgs",
+			    title: "Messages",
+			    content: "Important messages about the success or failure of the test data generation / metric description will appear here.",
+                backdrop: true
+			  },
+			  {
+			    element: "#tdata",
+			    title: "Test Data",
+			    content: "View the raw test data that has been generated here.",
+                backdrop: true
+			  },
+			  {
+			    element: "#examples",
+			    title: "View the Examples",
+			    content: "To get started, take a look at the examples. Good luck!",
+                backdrop: true
+			  }
+			]});
+
+			// Initialize the tour
+			tour.init();
+
+			// Start the tour
+			tour.start(true);
+		}
+
+		function visualise(vis, testData) {
+			vis.datatable = testData;
+
+			var container = "plot-"+vis.id.replace(new RegExp('[' + " " + ']', 'g'), "");
+			$("#plotarea").append('<div class="row bs-callout bs-callout-info"><h4>'+vis.name+'</h4><div id="'+container+'"></div>');
+
+			chart = new metvis.Chart("#" + container, vis);
+			chart.draw();
+		}
+        </script>
+</head>
+<body class="container-fluid">
+	<!-- <h1>The OSSMETER Metric Visualiser</h1> -->
+	<div class="row">
+		<div class="col-md-6">
+			<h2>MetVis <button type="button" class="btn btn-info" id="tour_btn">Start Tour</button></h2>
+			<div class="row bs-callout bs-callout-info">
+				<h4>Specification</h4>
+				Examples:
+				<div class="btn-group btn-group-xs" id="examples">
+					<button type="button" class="btn btn-default" id="commits_btn">Commits</button>
+					<button type="button" class="btn btn-default" id="nntp_btn">NNTP</button>
+
+					<button type="button" class="btn btn-default" id="categorical_btn">Categorical</button>
+				</div>
+				<a href="help.html">Help</a>
+				<textarea class="form-control" rows="20" id="editor"></textarea>
+			</div>
+			<div class="row bs-callout bs-callout-info">
+				
+				<div class="form-inline" id="visform">
+					Number of data points (time series): 
+					<label class="radio-inline">
+					  <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="5"> 5
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="10"> 10
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="100" checked> 100
+					</label>
+					<label class="radio-inline">
+					  <input type="radio" name="inlineRadioOptions" id="inlineRadio3" value="1000"> 1000
+					</label>
+					<button type="button" class="btn btn-primary form-control" id="visualise_btn">Visualise!</button>
+				</div>
+			</div>
+
+			<div class="row bs-callout bs-callout-info">
+				
+				<div class="form" id="visform">
+					Or paste URL of OSSMETER API: 
+					  <input type="text" name="visUrl" id="visUrl" placeholder="e.g. http://localhost:8182/projects/p/epsilon/m/commitsovertime" class="form-control"/> 
+					
+					<button type="button" class="btn btn-primary form-control" id="visualise_url_btn">Visualise!</button>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-6">
+					<div class="bs-callout bs-callout-info">
+						<h4>Messages</h4>
+						<div id="msgs"></div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="bs-callout bs-callout-info">
+						<h4>Test data</h4>
+						<div id="tdata"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-6" id="plotarea"></div>
+	</div>
+
+	<script src="javascripts/generators.js"></script>
+	<script src="../build/metvis.0.1.0.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+	"metricid" : "org.ossmeter.metricprovider.nntp.sentiment",
+	"vis" : [ 
+		{
+			"id" : "sentiment",
+			"name" : "Sentiment Analysis",
+			"description" : "Happy? Sad? Angry?",
+			"type" : "BarChart",
+			"datatable" : {
+				"rows" : "$repositories",
+				"cols" : [  { "name" : "Count", "field" : "$count", "_gen_generator" : "randomint" }, 
+					{ "name" : "Sentiment", "field" : "$sentiment", "_gen_generator" : "categorical", "_gen_categories" : 5 } ]
+			},
+			"x" : "Sentiment",
+			"y" : "Count", 
+			"x-label" : "Sentiment",		
+			"y-label" : "Count",
+			"timeSeries" : false,
+			"categorical" : true
+		}
+	]
+}

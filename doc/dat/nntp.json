@@ -1,0 +1,57 @@
+{
+	"metricid" : "org.ossmeter.metricprovider.historic.avgnumberofrequestsreplies",
+	"vis" : [ 
+		{
+			"id" : "avgnumberofarticlesrequestsreplies",
+			"name" : "Average Articles, Requests, and Replies",
+			"description": "",
+			"type" : "LineChart",
+			"datatable" : {
+				"cols" : [  { "name" : "Date", "field" : "$__date" },
+					{ "name" : "Articles", "field" : "$averageArticles" },
+					{ "name" : "Requests", "field" : "$averageRequests" },
+					{ "name" : "Replies", "field" : "$averageReplies" } ]
+			},
+			"x" : "Date",
+			"y" : ["Articles", "Requests", "Replies"],
+			"timeSeries" : true
+		},{
+			"id" : "avgnumberofrequests",
+			"name" : "Average Requests",
+			"description": "",
+			"type" : "LineChart",
+			"datatable" : {
+				"cols" : [  { "name" : "Date", "field" : "$__date" }, 
+					{ "name" : "Requests", "field" : "$averageRequests" } ]
+			},
+			"x" : "Date",
+			"y" : "Requests",
+			"timeSeries" : true
+		},{
+			"id" : "avgnumberofarticles",
+			"name" : "Average Articles",
+			"description": "",
+			"type" : "LineChart",
+			"datatable" : { 
+				"cols" : [  { "name" : "Date", "field" : "$__date" }, 
+					{ "name" : "Articles", "field" : "$averageArticles" } ]
+			},
+			"x" : "Date",
+			"y" : "Articles",
+			"timeSeries" : true
+		},{
+			"id" : "avgnumberofreplies",
+			"name" : "Average Replies",
+			"description": "",
+			"type" : "BarChart",
+			"datatable" : { 
+				"cols" : [  { "name" : "Date", "field" : "$__date" }, 
+					{ "name" : "Replies", "field" : "$averageReplies" } ]
+			},
+			"x" : "Date",
+			"y" : "Replies",
+			"timeSeries" : true
+		}
+	]
+
+}
