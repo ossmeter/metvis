@@ -1,41 +1,4 @@
-var ossplots = { 
-	version : "0.0.1"
-};
-
-(function() {
-	"use strict";
-
-	ossplots.Annotation = function(axis, intersect, label) {
-		this.axis = axis;
-		this.intersect = intersect;
-		this.label = label;
-	}
-
-	ossplots.Table = function(container, vis) {
-		self = this;
-
-		self.container = container;
-
-		self.vis = vis;
-
-		this.draw = function() {
-			"use strict";
-
-			// Validate vis
-			if (self.vis.type != "Table") {
-				console.err("Invalid visualisation type. Should be 'Table'. For non-tabular data use metvis.Chart.draw().");
-				return;
-			}
-
-			$(container).append("<table></table>")
-			var table = $(container).children();
-
-
-
-		}
-	}
-
-	ossplots.Chart = function(container, vis) {
+	metvis.Chart = function(container, vis) {
 		self = this;
 		// The HTML element to contain the plot
 		self.container = container;
@@ -457,4 +420,3 @@ var ossplots = {
 
 		return this;
 	} // end ossplots.chart
-})();
