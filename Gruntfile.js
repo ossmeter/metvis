@@ -29,6 +29,9 @@ module.exports = function(grunt) {
 				src: "src/css/metvis.css",
 				dest: "build/<%= pkg.name %>.<%= pkg.version %>.min.css"
 			}
+		},
+		qunit: {
+			all: ['test/**/*.html']
 		}
 	});
 
@@ -36,7 +39,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
+	grunt.loadNpmTasks('grunt-contrib-qunit');
 
   	// Default task(s).
-  	grunt.registerTask('default', ['concat','uglify', 'cssmin']);
+  	grunt.registerTask('default', ['concat','uglify', 'cssmin', 'qunit']);
 };
