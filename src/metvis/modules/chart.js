@@ -390,7 +390,7 @@
 
 			var parseDate = d3.time.format(self.dateFormat).parse;
 			vis.datatable.forEach(function(d) { 
-	            if (vis.timeSeries === true && typeof d[vis.x] != 'object') {
+	            if (vis.timeSeries === true && typeof d[vis.x] == 'string') { // The type check avoids re-parsing data (as the assignment is destructive)
 	                d[vis.x] = parseDate(d[vis.x]);
 	            } else if (!vis.categorical === true) {
 	                d[vis.x] = +d[vis.x];            
