@@ -36,6 +36,7 @@ path {
 .threshold-line line {
 	stroke: steelblue;
 	stroke-width:1.5px;
+	stroke-dasharray: 5,5;
 }
 
 .threshold-line line.dragging {

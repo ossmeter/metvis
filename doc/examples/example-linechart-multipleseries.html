@@ -14,6 +14,9 @@
 		<div class="row">
 			<div class="col-md-12" id="plot"></div>
 		</div>
+		<div class="row">
+			<div class="col-md-12" id="plot2"></div>
+		</div>
 	</div>
 
 	<script type="text/javascript">
@@ -31,15 +34,20 @@
 			"timeSeries" : true
 		};
 
-	var yannis = {"id":"bugs.cumulativeAverageResponseTime","name":"Average Response Time (Cumulative) (ms)","description":"The average response time of bugs addressed up to and including the current date.","type":"LineChart","datatable":[{"Date":"20050309","Response Time":0},{"Date":"20050310","Response Time":0},{"Date":"20050311","Response Time":0},{"Date":"20050312","Response Time":0},{"Date":"20050313","Response Time":0},{"Date":"20050314","Response Time":0},{"Date":"20050315","Response Time":0},{"Date":"20050316","Response Time":0},{"Date":"20050317","Response Time":0},{"Date":"20050318","Response Time":0},
-{"Date":"20060224","Response Time":3925581},{"Date":"20060225","Response Time":3925581},{"Date":"20060226","Response Time":3925581}],"timeSeries":true,"ordinal":false,"x":"Date","y":"Response Time"};
+	$.getJSON("data/ATL-newsgroups.emotions.cumulativeArticlePercentages.json", function(vis2) {
+
+		chart = new metvis.Chart("#plot2", vis2);
+		chart.height = 400;
+		chart.draw();
+	});
 
 	$(function() {
 		vis.datatable = generateTestData(vis, 1000);
 
-		chart = new metvis.Chart("#plot", yannis);
+		chart = new metvis.Chart("#plot", vis);
 		chart.height = 400;
 		chart.draw();
+
 	});
 	</script>
 

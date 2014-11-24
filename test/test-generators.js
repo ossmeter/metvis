@@ -1,3 +1,4 @@
+QUnit.module("Generators");
 QUnit.test("Get by name", function( assert ) {
   	assert.equal(metvis.Generators.get_by_name("linear")(1), 
   		metvis.Generators.linear(1), 
