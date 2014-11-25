@@ -1,5 +1,5 @@
 	metvis.Chart = function(container, vis) {
-		self = this;
+		var self = this;
 		// The HTML element to contain the plot
 		self.container = container;
 		// The base visualisation
@@ -184,6 +184,16 @@
 
 			$(self.container).empty();
 			self._draw();
+		}
+
+		self.removeAnnotation = function(annotation) {
+			"use strict";
+			var ind = self.annotations.indexOf(annotation);
+			if (ind >= 0) {
+				self.annotations.splice(ind, 1);
+				$(self.container).empty();
+				self._draw();
+			}
 		}
 
 		self._drawSeries = function(s, col) {

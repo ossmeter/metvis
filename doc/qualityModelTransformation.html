@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>QM Transformation</title>
+
+    <script src="../lib/jquery-1.9.1.js"></script>
+
+</head>
+<body class="container-fluid">
+	<pre id="model"></pre>
+	<p id="invalids"></p>	
+
+	<script>
+		$(function() {
+			"use strict";
+
+			doIt();
+		});
+
+		function doIt() {
+			"use strict";
+
+			$.getJSON("http://localhost:8182/metrics", function(metrics) {
+
+				// Make a map
+				var map = {}
+				for (var m in metrics) {
+					var metricid = metrics[m].id;
+
+					if (typeof metricid === "undefined") {
+						console.log("Metric with no ID field: " + metrics[m].name);
+						continue;
+					}
+					map[metrics[m].id] = metrics[m];
+				}
+
+				// Now transform the model
+				transformAspect(model, map);
+
+				$("#model").text(JSON.stringify(model, null, "\t"));
+				$("#invalids").text(JSON.stringify(invalidIDs, null, "\t"));
+			});
+		}
+
+		function transformAspect(aspect, map) {
+			for (var a in aspect.attributes) {
+				var newMetrics = [];
+				for (var m in aspect.attributes[a].metrics) {
+					var newM = {};
+
+					if (map[aspect.attributes[a].metrics[m]]) {
+						newM.name = map[aspect.attributes[a].metrics[m]].name;
+						newM.id = aspect.attributes[a].metrics[m];
+						newMetrics.push(newM);
+					} else {
+						invalidIDs.push(aspect.attributes[a].metrics[m]);
+					}
+				}
+				aspect.attributes[a].metrics = newMetrics;
+			}
+			for (var a in aspect.aspects) {
+				transformAspect(a, map);
+			}
+		}
+
+	var invalidIDs = [];
+
+	var model = {
+		"id" : "channels",
+		"name" : "Channels",
+		"aspects":[],
+		"attributes" : [
+			{
+				"name" : "Source Code",
+				"factoids" : [ "rascal.generic.churn.commitSize", 
+								"trans.rascal.readability.ReadabilityFactoid", 
+								"rascal.generic.churn.churnVolume",
+							    "trans.rascal.activecommitters.developmentTeamExperience", 
+							    "trans.rascal.activecommitters.weekendProject", 
+							    "trans.rascal.activecommitters.developmentTeamExperienceSpread",
+							    "trans.rascal.activecommitters.developmentTeamStability", 
+							    "trans.rascal.comments.headerUse", 
+							    "trans.rascal.OO.java.Cohesion-Java",
+							    "trans.rascal.OO.java.Coupling-Java", 
+							    "rascal.testability.java.JavaUnitTestCoverage" 
+							],
+				"metrics" : [ "commitsovertimeline" ],
+				"detail" : "src"
+			}, {
+				"name" : "Communication Channels",
+				"factoids" : [ "cocomo", "cocomo" ],
+				"metrics" : [ 	"newsgroups.activeusers", 
+								"newsgroups.newUsers", 
+								"newsgroups.cumulativeNewUsers", 
+								"newsgroups.articles", 
+								"newsgroups.cumulativeArticles", 
+							    "newsgroups.requests", 
+							    "newsgroups.cumulativerequests", 
+							    "newsgroups.replies", 
+							    "newsgroups.cumulativereplies", 
+							    "newsgroups.averageSentiment", 
+							    "newsgroups.sentimentAtThreadBeggining", 
+							    "newsgroups.requests-useraverage", 
+							    "newsgroups.cumulativeNewThreads",
+							    "newsgroups.requestsreplies-threadaverage", 
+							    "newsgroups.requestsreplies-useraverage", 
+							    "newsgroups.threads",
+							    "newsgroups.newThreads", 
+							    "newsgroups.replies-threadaverage",  
+							    "newsgroups.users",
+							    "newsgroups.replies-useraverage", 
+							    "newsgroups.requests-threadaverage", 
+							    "newsgroups.inactiveusers", 
+							    "newsgroups.averageResponseTime-threads", 
+							    "newsgroups.averageResponseTime", 
+							    "newsgroups.cumulativerequestsreplies", 
+							    "newsgroups.sentimentAtThreadEnd",
+							    "newsgroups.unansweredThreads", 
+							    "newsgroups.activeinactiveusers", 
+							    "newsgroups.cumulativeAverageResponseTime",
+							    "newsgroups.requestsreplies", 
+							    "newsgroups.cumulativeAverageResponseTime-threads", 
+							    "newsgroups.articles-threadaverage" 
+							],
+				"detail" : "cc"
+			}, {
+				"name" : "Bug Tracking Systems",
+				"factoids" : [ "org.ossmeter.factoid.bugs.channelusage.BugsChannelUsageFactoid", "cocomo" ],
+				"metrics" : [ 	"bugs.bugs", 
+								"bugs.cumulativeBugs", 
+								"bugs.fixedBugs", 	
+								"bugs.resolvedClosedBugs", 
+								"bugs.nonResolvedClosedBugs", 
+							  	"bugs.comments", 
+							  	"bugs.cumulativeComments", 
+							  	"bugs.patches", 
+							  	"bugs.cumulativePatches", 
+							  	"bugs.averageSentiment", 
+							  	"bugs.wontFixBugs", 
+							  	"bugs.bugOpenTime-bugs", 
+								"bugs.worksForMeBugs", 
+							  	"bugs.worksForMeBugs",  
+							  	"bugs.sentimentAtThreadBeggining",
+							  	"bugs.bugOpenTime", 
+							  	"bugs.sentimentAtThreadEnd", 
+							  	"bugs.invalidBugs"
+							],
+				"detail" : "bts"
+			}
+		]
+	}
+ 	</script>
+
+</body>
+</html>

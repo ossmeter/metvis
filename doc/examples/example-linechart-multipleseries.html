@@ -35,10 +35,9 @@
 		};
 
 	$.getJSON("data/ATL-newsgroups.emotions.cumulativeArticlePercentages.json", function(vis2) {
-
-		chart = new metvis.Chart("#plot2", vis2);
-		chart.height = 400;
-		chart.draw();
+		chart2 = new metvis.Chart("#plot2", vis2);
+		chart2.height = 400;
+		chart2.draw();
 	});
 
 	$(function() {
@@ -47,6 +46,9 @@
 		chart = new metvis.Chart("#plot", vis);
 		chart.height = 400;
 		chart.draw();
+
+		an = new metvis.Annotation("X", "20130101", "test")
+		chart.addAnnotation(an);
 
 	});
 	</script>
