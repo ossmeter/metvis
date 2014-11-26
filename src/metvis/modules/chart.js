@@ -266,7 +266,21 @@
 		            .attr("title", function(d) {
 		                return d[s.vis.x];
 		            })
-			}	
+			} else if (s.vis.type === "ScatterChart") {
+				self.svg.append("g")
+					.selectAll("circle")
+					.data(s.vis.datatable)
+					.enter()
+					.append("circle")
+						.attr("r", 2)
+						.attr("cx", function (d) {
+							return self.xScale(d[s.vis.x]);
+						})
+						.attr("cy", function (d){
+							return self.yScale(d[s.name]);
+						})	
+						.style("fill", col)
+			}
 		} // end ossplots.chart._drawSeries
 
 		self._updateScales = function() {
