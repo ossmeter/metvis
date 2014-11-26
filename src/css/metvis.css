@@ -49,3 +49,7 @@ path {
 	display: inline-block;
 	margin:2px;
 }
+
+.metvis-annotation-text {
+	font-size:9pt;
+}
